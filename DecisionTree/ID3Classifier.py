@@ -88,7 +88,6 @@ class ID3Classifier:
     # find unique values and their frequency counts for the attribute to be split
     values, counts = np.unique(data[feature_attribute_name], return_counts=True)
 
-    # calculate weighted entropy of subset
     majority_error_list = []
 
     for i in range(len(values)):
@@ -97,7 +96,6 @@ class ID3Classifier:
 
       majority_error = np.max(majority_error_list)
 
-      # calculate information gain
       majority_gain = 1 - majority_error
 
     return majority_gain
@@ -107,7 +105,6 @@ class ID3Classifier:
     # find unique values and their frequency counts for the attribute to be split
     values, counts = np.unique(data[feature_attribute_name], return_counts=True)
 
-    # calculate weighted entropy of subset
     gini_error_list = []
 
     for i in range(len(values)):
@@ -115,8 +112,7 @@ class ID3Classifier:
       gini_error_list.append(subset_probability)
 
       gini_error = np.sum(gini_error_list)
-
-      # calculate information gain
+      
       gini_gain = 1 - gini_error
 
     return gini_gain
