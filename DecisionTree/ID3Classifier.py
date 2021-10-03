@@ -6,10 +6,10 @@ from numpy import log2 as log
 
 class ID3Classifier:
 
-  def __init__(self, max_depth=10, gain=0, attributes=None):
+  def __init__(self, max_depth=10, gain=0, missing_value=False):
     self.max_depth = max_depth
     self.gain = gain
-    self.attributes = attributes
+    self.missing_value = missing_value
     self.tree = None
 
 
@@ -83,7 +83,31 @@ class ID3Classifier:
 
     return information_gain
 
+  def majority_error(self, attribute_column):
+    # find unique values and their frequency counts for the given attribute
+    values, counts = np.unique(attribute_column, return_counts=True)
+    #find index of the error
+    index = np.where((values == "unacc") | (values == "no") )
+    #save value 
+    error_value = counts[index]
+    # calculate entropy for each unique value
+    majority_list = []
+
+    for i in range(len(values)):
+      probability = counts[i]/np.sum(counts)
+      majority_err = error_value/np.sum(counts)
+      majority_list.append(probability*majority_err)
+
+    # calculate sum of individual entropy values
+    total_majority_error = np.sum(majority_list)
+
+    return total_majority_error
+
+
   def majority_gain(self, data, feature_attribute_name, target_attribute_name):
+    
+    # find total majority gain of given subset
+    total_majority = self.majority_error(data[target_attribute_name])
 
     # find unique values and their frequency counts for the attribute to be split
     values, counts = np.unique(data[feature_attribute_name], return_counts=True)
@@ -92,15 +116,34 @@ class ID3Classifier:
 
     for i in range(len(values)):
       subset_probability = counts[i]/np.sum(counts)
-      majority_error_list.append(subset_probability)
+      majority_error_list.append(subset_probability*self.majority_error(data.where(data[feature_attribute_name]==values[i]).dropna()[target_attribute_name]))
 
-      majority_error = np.max(majority_error_list)
+    majority_error = np.sum(majority_error_list)
 
-      majority_gain = 1 - majority_error
+    majority_gain = total_majority - majority_error
 
     return majority_gain
 
+  def gini_error(self, attribute_column):
+
+    # find unique values and their frequency counts for the attribute to be split
+    values, counts = np.unique(attribute_column, return_counts=True)
+
+    gini_error_list = []
+
+    for i in range(len(values)):
+      gini_index = (counts[i]/np.sum(counts))**2
+      gini_error_list.append(gini_index)
+      
+
+    gini_error = np.sum(gini_error_list)
+
+    return gini_error
+
   def gini_gain(self, data, feature_attribute_name, target_attribute_name):
+
+    # find total majority gain of given subset
+    total_gini_error = self.gini_error(data[target_attribute_name])
 
     # find unique values and their frequency counts for the attribute to be split
     values, counts = np.unique(data[feature_attribute_name], return_counts=True)
@@ -108,18 +151,33 @@ class ID3Classifier:
     gini_error_list = []
 
     for i in range(len(values)):
-      subset_probability = (np.sum(counts)/counts[i])**2
-      gini_error_list.append(subset_probability)
+      subset_probability = counts[i]/np.sum(counts)
+      gini_error_list.append(subset_probability*self.gini_error(data.where(data[feature_attribute_name]==values[i]).dropna()[target_attribute_name]))
 
-      gini_error = np.sum(gini_error_list)
+    gini_error = np.sum(gini_error_list)
       
-      gini_gain = 1 - gini_error
+    gini_gain = total_gini_error - gini_error
 
     return gini_gain
-  def decision_tree(self, data, orginal_data, feature_attribute_names, target_attribute_name, parent_node_class=None, depth=0):
+
+
+  def decision_tree(self, data, original_data, feature_attribute_names, target_attribute_name, parent_node_class=None, depth=0):
     # base cases:
+
+    # Let us consider "unknown" as attribute value missing. 
+    # Here we simply complete it with the majority of other values of the same attribute in the training set.
+    if self.missing_value == True:
+      # find unique values and their frequency counts for the attribute to be split
+      majority_class_index = np.argmax(np.unique(original_data[target_attribute_name], return_counts=True)[1])
+
+      majority_value = np.unique(original_data[feature_attribute_names])[majority_class_index]
+
+      # set where data is "unknown" to the majority value
+      data[feature_attribute_names] = np.where(data[feature_attribute_names] == "unknown", majority_value, data[feature_attribute_names])
+
     # if data is pure, return the majority class of subset
     unique_classes = np.unique(data[target_attribute_name])
+
     if len(unique_classes) <= 1:
       return unique_classes[0]
       # if subset is empty, ie. no samples, return majority class of original data
@@ -166,7 +224,7 @@ class ID3Classifier:
       sub_data = data.where(data[best_feature] == value).dropna()
 
       # call the algorithm recursively
-      subtree = self.decision_tree(sub_data, orginal_data, feature_attribute_names, target_attribute_name, parent_node_class, depth + 1)
+      subtree = self.decision_tree(sub_data, original_data, feature_attribute_names, target_attribute_name, parent_node_class, depth + 1)
 
       # add subtree to original tree
       tree[best_feature][value] = subtree

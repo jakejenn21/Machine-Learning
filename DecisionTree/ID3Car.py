@@ -14,6 +14,7 @@ def accuracy_score(test, pred):
     return np.mean(pred == test)
 
 
+print("------------------------------CAR DATASET--------------------------------\n")
 #------------------------------CAR DATASET--------------------------------
 
 #read car dataset 

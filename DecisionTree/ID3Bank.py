@@ -53,6 +53,8 @@ attributes = {
             }
 
 
+print("------------------------------BANK DATASET--------------------------------\n")
+
 
 traindf = pd.read_csv("DecisionTree/bank/train.csv", header=None)
 traindf.columns = list(attributes.keys()) + ["label"]
@@ -74,8 +76,8 @@ attributes['previous'] = np.median(traindf['previous'])
 make_binary(attributes, traindf)
 make_binary(attributes, testdf)
 
-print(traindf)
-print(testdf)
+#print(traindf)
+#print(testdf)
 
 # organize data into input and output
 X_train = traindf.drop(columns="label")
@@ -88,8 +90,9 @@ y_test = testdf["label"]
 #print(X_test)
 #print(y_test)
 
-#--------------INFORMATION GAIN----------------------
+#--------------INFORMATION GAIN ----------------------
 
+print("------------------------------INFORMATION GAIN (TREAT UNKOWN AS VALUE)--------------------------------\n")
 
 # initialize and fit model to different depths for Information Gain for train and test datasets
 
@@ -115,15 +118,15 @@ for i in x1:
     y1.append(score)
 
 
-plot2 =plt.figure(1)
+plot1 =plt.figure(1)
 plt.plot(x,y,'r-',label='Train')
 plt.plot(x1,y1,'b-',label='Test')
 plt.legend()
-plt.title("Information Gain Splitting")
+plt.title("INFORMATION GAIN SPLITTING (TREAT UNKOWN AS VALUE)")
 plt.ylabel("Accuracy")
 plt.xlabel("Depth")
 
-print("INFORMATION GAIN SPLITTING")
+print("INFORMATION GAIN SPLITTING (TREAT UNKOWN AS VALUE)")
 for i in x:
     print("Depth:", i, "TRAIN:", y[i-1], "TEST:", y1[i-1])
 
@@ -132,6 +135,8 @@ print("\n")
 
 
 #--------------MAJORITY ERROR-------------------------
+
+print("------------------------------MAJORITY ERROR (TREAT UNKOWN AS VALUE)--------------------------------\n")
 
 # initialize and fit model to different depths for Majority Error
 
@@ -160,12 +165,12 @@ plot2 =plt.figure(2)
 plt.plot(x,y,'r-',label='Train')
 plt.plot(x1,y1,'b-',label='Test')
 plt.legend()
-plt.title("Majority Error Splitting")
+plt.title("MAJORITY ERROR SPLITTING (TREAT UNKOWN AS VALUE)")
 plt.ylabel("Accuracy")
 plt.xlabel("Depth")
 
 
-print("MAJORITY ERROR SPLITTING")
+print("MAJORITY ERROR SPLITTING (TREAT UNKOWN AS VALUE)")
 for i in x:
     print("Depth:", i, "TRAIN:", y[i-1], "TEST:", y1[i-1])
 
@@ -174,6 +179,8 @@ print("\n")
 
 
 # #--------------------GINI INDEX---------------------------------------
+
+print("------------------------------GINI INDEX (TREAT UNKOWN AS VALUE)--------------------------------\n")
 
 
 # # initialize and fit model to different depths for Gini Index
@@ -203,13 +210,146 @@ plot3 =plt.figure(3)
 plt.plot(x,y,'r-',label='Train')
 plt.plot(x1,y1,'b-',label='Test')
 plt.legend()
-plt.title("Gini Index Splitting")
+plt.title("GINI INDEX SPLITTING (TREAT UNKOWN AS VALUE)")
 plt.ylabel("Accuracy")
 plt.xlabel("Depth")
 
 plt.show()
 
-print("GINI INDEX SPLITTING")
+print("GINI INDEX SPLITTING (TREAT UNKOWN AS VALUE)")
+for i in x:
+    print("Depth:", i, "TRAIN:", y[i-1], "TEST:", y1[i-1])
+
+print("\n")
+
+
+#--------------INFORMATION GAIN UNKNOWN ----------------------
+
+print("------------------------------INFORMATION GAIN (TREAT UNKNOWN AS MAJORITY)--------------------------------\n")
+
+
+# initialize and fit model to different depths for Information Gain for train and test datasets
+
+#TRAIN
+x = range(1,17)
+y= []
+for i in x:
+    model = classifier.ID3Classifier(i,0, True)
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+    score = accuracy_score(y_test, y_pred)
+    y.append(score)
+
+
+#TEST
+x1 = range(1,17)
+y1= []
+for i in x1:
+    model = classifier.ID3Classifier(i,0, True)
+    model.fit(X_test, y_test)
+    y_pred = model.predict(X_train)
+    score = accuracy_score(y_train, y_pred)
+    y1.append(score)
+
+
+plot4 =plt.figure(4)
+plt.plot(x,y,'r-',label='Train')
+plt.plot(x1,y1,'b-',label='Test')
+plt.legend()
+plt.title("Information Gain Splitting")
+plt.ylabel("Accuracy")
+plt.xlabel("Depth")
+
+print("INFORMATION GAIN SPLITTING (TREAT UNKNOWN AS MAJORITY)")
+for i in x:
+    print("Depth:", i, "TRAIN:", y[i-1], "TEST:", y1[i-1])
+
+print("\n")
+
+
+
+#--------------MAJORITY ERROR-------------------------
+
+print("------------------------------MAJORITY ERROR (TREAT UNKNOWN AS MAJORITY)--------------------------------\n")
+
+# initialize and fit model to different depths for Majority Error
+
+#TRAIN
+x = range(1,17)
+y= []
+for i in x:
+    model = classifier.ID3Classifier(i,1, True)
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+    score = accuracy_score(y_test, y_pred)
+    y.append(score)
+
+
+#TEST
+x1 = range(1,17)
+y1= []
+for i in x1:
+    model = classifier.ID3Classifier(i,1, True)
+    model.fit(X_test, y_test)
+    y_pred = model.predict(X_train)
+    score = accuracy_score(y_train, y_pred)
+    y1.append(score)
+
+plot5 =plt.figure(5)
+plt.plot(x,y,'r-',label='Train')
+plt.plot(x1,y1,'b-',label='Test')
+plt.legend()
+plt.title("MAJORITY ERROR SPLITTING (TREAT UNKNOWN AS MAJORITY)")
+plt.ylabel("Accuracy")
+plt.xlabel("Depth")
+
+
+print("MAJORITY ERROR SPLITTING (TREAT UNKNOWN AS MAJORITY)")
+for i in x:
+    print("Depth:", i, "TRAIN:", y[i-1], "TEST:", y1[i-1])
+
+
+print("\n")
+
+
+# #--------------------GINI INDEX---------------------------------------
+print("------------------------------GINI INDEX (TREAT UNKNOWN AS MAJORITY)--------------------------------\n")
+
+
+# # initialize and fit model to different depths for Gini Index
+
+#TRAIN
+x = range(1,17)
+y= []
+for i in x:
+    model = classifier.ID3Classifier(i,2, True)
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+    score = accuracy_score(y_test, y_pred)
+    y.append(score)
+
+
+#TEST
+x1 = range(1,17)
+y1= []
+for i in x1:
+    model = classifier.ID3Classifier(i,2, True)
+    model.fit(X_test, y_test)
+    y_pred = model.predict(X_train)
+    score = accuracy_score(y_train, y_pred)
+    y1.append(score)
+
+plot6 =plt.figure(6)
+plt.plot(x,y,'r-',label='Train')
+plt.plot(x1,y1,'b-',label='Test')
+plt.legend()
+plt.title("GINI INDEX SPLITTING (TREAT UNKNOWN AS MAJORITY)")
+plt.ylabel("Accuracy")
+plt.xlabel("Depth")
+
+plt.show()
+
+print("GINI INDEX SPLITTING (TREAT UNKNOWN AS MAJORITY)")
 for i in x:
     print("Depth:", i, "TRAIN:", y[i-1], "TEST:", y1[i-1])
 
