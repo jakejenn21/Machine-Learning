@@ -164,17 +164,6 @@ class ID3Classifier:
   def decision_tree(self, data, original_data, feature_attribute_names, target_attribute_name, parent_node_class=None, depth=0):
     # base cases:
 
-    # Let us consider "unknown" as attribute value missing. 
-    # Here we simply complete it with the majority of other values of the same attribute in the training set.
-    if self.missing_value == True:
-      # find unique values and their frequency counts for the attribute to be split
-      majority_class_index = np.argmax(np.unique(original_data[target_attribute_name], return_counts=True)[1])
-
-      majority_value = np.unique(original_data[feature_attribute_names])[majority_class_index]
-
-      # set where data is "unknown" to the majority value
-      data[feature_attribute_names] = np.where(data[feature_attribute_names] == "unknown", majority_value, data[feature_attribute_names])
-
     # if data is pure, return the majority class of subset
     unique_classes = np.unique(data[target_attribute_name])
 
@@ -192,6 +181,19 @@ class ID3Classifier:
     # determine parent node class of current branch
       majority_class_index = np.argmax(np.unique(data[target_attribute_name], return_counts=True)[1])
       parent_node_class = unique_classes[majority_class_index]
+
+
+    # Let us consider "unknown" as attribute value missing. 
+    # Here we simply complete it with the majority of other values of the same attribute in the training set.
+    if self.missing_value == True:
+      # find unique values and their frequency counts for the attribute to be split
+      majority_class_index = np.argmax(np.unique(original_data[target_attribute_name], return_counts=True)[1])
+      majority_value = np.unique(original_data[feature_attribute_names])[majority_class_index]
+      # set where data is "unknown" to the majority value
+      data[feature_attribute_names] = np.where(data[feature_attribute_names] == "unknown", majority_value, data[feature_attribute_names])
+
+
+
     # determine information gain values for each feature
     # choose feature which best splits the data, ie. highest value
     if self.gain == 0:

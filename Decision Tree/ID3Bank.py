@@ -14,20 +14,20 @@ from pprint import pprint
 def accuracy_score(test, pred):
     return np.mean(pred == test)
 
-def make_binary(attributes, df):
-    df['age'] = np.where(df['age'] >= attributes['age'], "yes", "no")
+def make_binary(attributes, df, yes, no):
+    df['age'] = np.where(df['age'] >= attributes['age'], yes, no)
 
-    df['balance'] = np.where(df['balance'] >= attributes['balance'], "yes", "no")
+    df['balance'] = np.where(df['balance'] >= attributes['balance'], yes, no)
 
-    df['day'] = np.where(df['day'] >= attributes['day'], "yes", "no")
+    df['day'] = np.where(df['day'] >= attributes['day'], yes, no)
 
-    df['duration'] = np.where(df['duration'] >= attributes['duration'], "yes", "no")
+    df['duration'] = np.where(df['duration'] >= attributes['duration'], yes, no)
 
-    df['campaign'] = np.where(df['campaign'] >= attributes['campaign'], "yes", "no")
+    df['campaign'] = np.where(df['campaign'] >= attributes['campaign'], yes, no)
 
-    df['pdays'] = np.where(df['pdays'] >= attributes['pdays'], "yes", "no")
+    df['pdays'] = np.where(df['pdays'] >= attributes['pdays'], yes, no)
 
-    df['previous'] = np.where(df['previous'] >= attributes['previous'], "yes", "no")
+    df['previous'] = np.where(df['previous'] >= attributes['previous'], yes, no)
 
 
 #read car dataset 
@@ -73,8 +73,8 @@ attributes['previous'] = np.median(traindf['previous'])
 
 #print(attributes)
 
-make_binary(attributes, traindf)
-make_binary(attributes, testdf)
+make_binary(attributes, traindf, "yes", "no")
+make_binary(attributes, testdf, "yes", "no")
 
 #print(traindf)
 #print(testdf)
