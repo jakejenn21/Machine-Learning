@@ -19,10 +19,10 @@ print("------------------------------CAR DATASET--------------------------------
 
 #read car dataset 
 
-traindf = pd.read_csv("DecisionTree/car/train.csv", header=None)
+traindf = pd.read_csv("Decision Tree/car/train.csv", header=None)
 traindf.columns = ['buying', 'maint', 'doors', 'persons', 'lug_boot', 'safety', 'label']
 #print(traindf)
-testdf = pd.read_csv("DecisionTree/car/test.csv", header=None)
+testdf = pd.read_csv("Decision Tree/car/test.csv", header=None)
 testdf.columns = ['buying', 'maint', 'doors', 'persons', 'lug_boot', 'safety', 'label']
 #print(testdf)
 
@@ -48,7 +48,7 @@ y_test = testdf["label"]
 x = range(1,7)
 y= []
 for i in x:
-    model = classifier.ID3Classifier(i,0)
+    model = classifier.ID3Classifier(criterion="ig", max_depth=i)
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
     score = accuracy_score(y_test, y_pred)
@@ -58,7 +58,7 @@ for i in x:
 x1 = range(1,7)
 y1= []
 for i in x1:
-    model = classifier.ID3Classifier(i,0)
+    model = classifier.ID3Classifier(criterion="ig", max_depth=i)
     model.fit(X_test, y_test)
     y_pred = model.predict(X_train)
     score = accuracy_score(y_train, y_pred)
@@ -88,7 +88,7 @@ print("\n")
 x = range(1,7)
 y= []
 for i in x:
-    model = classifier.ID3Classifier(i,1)
+    model = classifier.ID3Classifier(criterion="me", max_depth=i)
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
     score = accuracy_score(y_test, y_pred)
@@ -98,7 +98,7 @@ for i in x:
 x1 = range(1,7)
 y1= []
 for i in x1:
-    model = classifier.ID3Classifier(i,1)
+    model = classifier.ID3Classifier(criterion="me", max_depth=i)
     model.fit(X_test, y_test)
     y_pred = model.predict(X_train)
     score = accuracy_score(y_train, y_pred)
@@ -130,7 +130,7 @@ print("\n")
 x = range(1,7)
 y= []
 for i in x:
-    model = classifier.ID3Classifier(i,2)
+    model = classifier.ID3Classifier(criterion="gini", max_depth=i)
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
     score = accuracy_score(y_test, y_pred)
@@ -140,7 +140,7 @@ for i in x:
 x1 = range(1,7)
 y1= []
 for i in x1:
-    model = classifier.ID3Classifier(i,2)
+    model = classifier.ID3Classifier(criterion="gini", max_depth=i)
     model.fit(X_test, y_test)
     y_pred = model.predict(X_train)
     score = accuracy_score(y_train, y_pred)

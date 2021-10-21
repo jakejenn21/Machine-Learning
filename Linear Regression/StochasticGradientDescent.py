@@ -1,59 +1,70 @@
 
 import numpy as np
 import random
+import matplotlib.pyplot as plt
  
-def lms_gradient(x, y, w, train_size):
+def stocastic_gradient(x, y, w, train_size):
+    return (y-(x.dot(w.T))*x)
+
+def cost(X, Y, w):
     sum = 0
-    # print(x)
-    # print(y)
-    # print(w)
-    # print(train_size)
-    sum = (y-(np.dot(x,np.transpose(w))))
-    res = -1 * sum
-    return res
+    for i in range(1,X.shape[0]):
+        sum += (Y[i]-w.T.dot(X[i]))**2
+    return 1/2 * sum
 
-def sgd(x, y, n_vars=None, start=None, learn_rate=0.001, n_iter=100000, tolerance=1e-06, random_state=None):
-
+def sgd(X, y, learn_rate=0.001, n_iter=100000, tolerance=1e-06, batch_size=1):
     # Converting x and y to NumPy arrays
-    x, y = np.array(x), np.array(y)
-    n_obs = x.shape[0]
-    if n_obs != y.shape[0]:
-        raise ValueError("'x' and 'y' lengths do not match")
+    X, y = np.array(X), np.array(y)
+    num_rows, num_cols = X.shape
+    n_obs = X.shape[0]
 
-    # Initializing the values of the variables
-    vector = np.zeros(x[0].shape)
+    updates = []
+    costs = []
 
-    # Setting up and checking the learning rate
-    learn_rate = np.array(learn_rate)
-    if np.any(learn_rate <= 0):
-        raise ValueError("'learn_rate' must be greater than zero")
+    xy = np.c_[X.reshape(n_obs, -1), y.reshape(n_obs, 1)]
+    # Initializing the random number generator
+    rng = np.random.default_rng()
 
-    # Setting up and checking the maximal number of iterations
-    n_iter = int(n_iter)
-    if n_iter <= 0:
-        raise ValueError("'n_iter' must be greater than zero")
+    w = np.zeros(num_cols)
 
-      # Setting up and checking the tolerance
-    tolerance = np.array(tolerance)
-    if np.any(tolerance <= 0):
-        raise ValueError("'tolerance' must be greater than zero")
-
-    # Setting the difference to zero for the first iteration
-    diff = np.zeros(x[0].shape)
-
+    update_count = 0 
+    
     # Performing the gradient descent loop
-    for _ in range(n_iter):
-        random_index = random.randint(0, len(x)-1)
+    for t in range(n_iter):
 
-        # Recalculating the difference
-        grad = np.array(lms_gradient(x[random_index], y[random_index], vector, x.shape[0]))
-        diff =  diff - learn_rate * grad
+        # Shuffle x and y
+        rng.shuffle(xy)
 
-        # Checking if the absolute difference is small enough
-        if np.all(np.abs(diff) <= tolerance):
-            break
+        # Performing minibatch moves
+        for start in range(0, n_obs, batch_size):
+            stop = start + batch_size
+            x_batch, y_batch = xy[start:stop, :-1], xy[start:stop, -1:]
 
-        # Updating the values of the variables
-        vector += diff
+            w_gradient = np.zeros(num_cols)
 
-    return [vector, learn_rate] if vector.shape else [vector.item(), learn_rate]
+            for i in range(batch_size): # Calculating gradients for point in our K sized dataset
+                prediction=np.dot(w.T,x_batch[i])
+                w_gradient=w_gradient+(-2)*x_batch[i]*(y_batch[i]-(prediction))
+        
+            #Updating the weights(W) and Bias(b) with the above calculated Gradients
+            w=w-learn_rate*(w_gradient/batch_size)
+            update_count+=1
+        
+        updates.append(update_count)
+        update_cost = cost(X, y, w)
+        #print(update_cost)
+        costs.append(update_cost)
+
+
+    return [updates, costs, w, learn_rate] if w.shape else [updates, costs, w.item(), learn_rate]
+
+def predict(X,w):
+    y_pred = []
+    num_vars = X[0].shape
+    for i in range(len(X)):
+        temp = X
+        X_test = temp.iloc[:,0:num_vars].values
+        y = np.asscalar(np.dot(w,X_test[i]))
+        y_pred.append(y)
+
+    return np.array(y_pred)

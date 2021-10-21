@@ -4,69 +4,68 @@ import pprint
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import sys
+sys.path.append("./Decision Tree")
 import ID3Classifier as classifier
 import numbers
 
+#weak learner(decision stump)
 
-""" HELPER FUNCTION: GET ERROR RATE ========================================="""
-def get_error_rate(pred, Y):
-    return sum(pred != Y) / float(len(Y))
+class AdaBoost:
 
-""" HELPER FUNCTION: PRINT ERROR RATE ======================================="""
-def print_error_rate(err):
-    print ('Error rate: Training: %.4f - Test: %.4f' % err)
+    def __init__(self):
+        self.stumps = None
+        self.stump_weights = None
+        self.errors = None
+        self.sample_weights = None
+        self.ada_errors = None
 
-""" HELPER FUNCTION: GENERIC CLASSIFIER ====================================="""
-def generic_clf(Y_train, X_train, Y_test, X_test, clf):
-    clf.fit(X_train,Y_train)
-    pred_train = clf.predict(X_train)
-    pred_test = clf.predict(X_test)
-    return get_error_rate(pred_train, Y_train), \
-           get_error_rate(pred_test, Y_test)
-    
-""" ADABOOST IMPLEMENTATION ================================================="""
-def adaboost_clf(Y_train, X_train, Y_test, X_test, M, clf):
-    n_train, n_test = len(X_train), len(X_test)
-    # Initialize weights
-    w = np.ones(n_train) / n_train
-    pred_train, pred_test = [np.zeros(n_train), np.zeros(n_test)]
-    
-    for i in range(M):
-        # Fit a classifier with the specific weights
-        clf.fit(X_train, Y_train, sample_weight = w)
-        pred_train_i = clf.predict(X_train)
-        pred_test_i = clf.predict(X_test)
-        # Indicator function
-        miss = [int(x) for x in (pred_train_i != Y_train)]
-        # Equivalent with 1/-1 to update weights
-        miss2 = [x if x==1 else -1 for x in miss]
-        # Error
-        err_m = np.dot(w,miss) / sum(w)
-        # Alpha
-        alpha_m = 0.5 * np.log( (1 - err_m) / float(err_m))
-        # New weights
-        w = np.multiply(w, np.exp([float(x) * alpha_m for x in miss2]))
-        # Add to prediction
-        pred_train = [sum(x) for x in zip(pred_train, 
-                                          [x * alpha_m for x in pred_train_i])]
-        pred_test = [sum(x) for x in zip(pred_test, 
-                                         [x * alpha_m for x in pred_test_i])]
-    
-    pred_train, pred_test = np.sign(pred_train), np.sign(pred_test)
-    # Return error rate in train and test set
-    return get_error_rate(pred_train, Y_train), \
-           get_error_rate(pred_test, Y_test)
+    def fit(self, X: np.ndarray, y: np.ndarray, iters: int):
 
-""" PLOT FUNCTION ==========================================================="""
-def plot_error_rate(er_train, er_test):
-    df_error = pd.DataFrame([er_train, er_test]).T
-    df_error.columns = ['Training', 'Test']
-    plot1 = df_error.plot(linewidth = 3, figsize = (8,6),
-            color = ['lightblue', 'darkblue'], grid = True)
-    plot1.set_xlabel('Number of iterations', fontsize = 12)
-    plot1.set_xticklabels(range(0,450,50))
-    plot1.set_ylabel('Error rate', fontsize = 12)
-    plot1.set_title('Error rate vs number of iterations', fontsize = 16)
-    plt.axhline(y=er_test[0], linewidth=1, color = 'red', ls = 'dashed')
+        n = X.shape[0]
 
+        # initlizing numpy arrays
+        self.sample_weights = np.zeros(shape=(iters, n))
+        self.stumps = np.zeros(shape=iters, dtype=object)
+        self.stump_weights = np.zeros(shape=iters)
+        self.errors = np.zeros(shape=iters)
+        self.ada_errors = np.zeros(shape=iters)
 
+        # initializing weights uniformly
+        self.sample_weights[0] = np.ones(shape=n) / n
+
+        for t in range(iters):
+            # fitting weak learner
+            curr_sample_weights = self.sample_weights[t]
+            stump = classifier.ID3Classifier(criterion="ig", max_depth=1, numeric_conv=True)
+            stump = stump.fit(X, y, curr_sample_weights)
+            stump_pred = stump.predict(X)
+      # calculating error and stump weight from weak learner prediction
+            err = curr_sample_weights[(stump_pred != y)].sum() / n
+            if err != 0:
+                stump_weight = np.log((1 - err) / err) / 2
+            else:
+                stump_weight = 0.5
+
+            print(curr_sample_weights)
+            print(np.exp(-stump_weight * y * stump_pred))
+            # updating sample weights
+            new_sample_weights = (
+                float(curr_sample_weights) * float(np.exp(-stump_weight * y * stump_pred))
+            )
+      
+            new_sample_weights /= new_sample_weights.sum()
+
+            # updating sample weights for t+1
+            if t+1 < iters:
+                self.sample_weights[t+1] = new_sample_weights
+  
+            self.stumps[t] = stump
+            self.stump_weights[t] = stump_weight
+            self.errors[t] = err
+            self.ada_errors[t] = np.prod(((self.errors[t]*(1-self.errors[t]))**1/2))
+
+        return self
+
+    def predict(self, X):
+        return np.sign(np.dot(self.stump_weights, np.array([stump.predict(X) for stump in self.stumps])))

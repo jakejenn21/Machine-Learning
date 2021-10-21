@@ -14,22 +14,6 @@ from pprint import pprint
 def accuracy_score(test, pred):
     return np.mean(pred == test)
 
-def make_binary(attributes, df, yes, no):
-    df['age'] = np.where(df['age'] >= attributes['age'], yes, no)
-
-    df['balance'] = np.where(df['balance'] >= attributes['balance'], yes, no)
-
-    df['day'] = np.where(df['day'] >= attributes['day'], yes, no)
-
-    df['duration'] = np.where(df['duration'] >= attributes['duration'], yes, no)
-
-    df['campaign'] = np.where(df['campaign'] >= attributes['campaign'], yes, no)
-
-    df['pdays'] = np.where(df['pdays'] >= attributes['pdays'], yes, no)
-
-    df['previous'] = np.where(df['previous'] >= attributes['previous'], yes, no)
-
-
 #read car dataset 
 
 attributes = {
@@ -56,28 +40,11 @@ attributes = {
 print("------------------------------BANK DATASET--------------------------------\n")
 
 
-traindf = pd.read_csv("DecisionTree/bank/train.csv", header=None)
+traindf = pd.read_csv("Decision Tree/bank/train.csv", header=None)
 traindf.columns = list(attributes.keys()) + ["label"]
 #print(traindf)
-testdf = pd.read_csv("DecisionTree/bank/test.csv", header=None)
+testdf = pd.read_csv("Decision Tree/bank/test.csv", header=None)
 testdf.columns = list(attributes.keys()) + ["label"]
-#print(testdf)
-
-attributes['age'] = np.median(traindf['age'])
-attributes['balance'] = np.median(traindf['balance'])
-attributes['day'] = np.median(traindf['day'])
-attributes['duration'] = np.median(traindf['duration'])
-attributes['campaign'] = np.median(traindf['campaign'])
-attributes['pdays'] = np.median(traindf['pdays'])
-attributes['previous'] = np.median(traindf['previous'])
-
-#print(attributes)
-
-make_binary(attributes, traindf, "yes", "no")
-make_binary(attributes, testdf, "yes", "no")
-
-#print(traindf)
-#print(testdf)
 
 # organize data into input and output
 X_train = traindf.drop(columns="label")
@@ -100,7 +67,7 @@ print("------------------------------INFORMATION GAIN (TREAT UNKOWN AS VALUE)---
 x = range(1,17)
 y= []
 for i in x:
-    model = classifier.ID3Classifier(i,0)
+    model = classifier.ID3Classifier(criterion="ig", max_depth=i, missing_value=False, sample_weights=[], numeric_conv=True, enable_categorical=True)
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
     score = accuracy_score(y_test, y_pred)
@@ -111,7 +78,7 @@ for i in x:
 x1 = range(1,17)
 y1= []
 for i in x1:
-    model = classifier.ID3Classifier(i,0)
+    model = classifier.ID3Classifier(criterion="ig", max_depth=i, missing_value=False, sample_weights=[], numeric_conv=True, enable_categorical=True)
     model.fit(X_test, y_test)
     y_pred = model.predict(X_train)
     score = accuracy_score(y_train, y_pred)
@@ -144,7 +111,7 @@ print("------------------------------MAJORITY ERROR (TREAT UNKOWN AS VALUE)-----
 x = range(1,17)
 y= []
 for i in x:
-    model = classifier.ID3Classifier(i,1)
+    model = classifier.ID3Classifier(criterion="me", max_depth=i, missing_value=False, sample_weights=[], numeric_conv=True, enable_categorical=True)
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
     score = accuracy_score(y_test, y_pred)
@@ -155,7 +122,7 @@ for i in x:
 x1 = range(1,17)
 y1= []
 for i in x1:
-    model = classifier.ID3Classifier(i,1)
+    model = classifier.ID3Classifier(criterion="me", max_depth=i, missing_value=False, sample_weights=[], numeric_conv=True, enable_categorical=True)
     model.fit(X_test, y_test)
     y_pred = model.predict(X_train)
     score = accuracy_score(y_train, y_pred)
@@ -189,7 +156,7 @@ print("------------------------------GINI INDEX (TREAT UNKOWN AS VALUE)---------
 x = range(1,17)
 y= []
 for i in x:
-    model = classifier.ID3Classifier(i,2)
+    model = classifier.ID3Classifier(criterion="gini", max_depth=i, missing_value=False, sample_weights=[], numeric_conv=True, enable_categorical=True)
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
     score = accuracy_score(y_test, y_pred)
@@ -200,7 +167,7 @@ for i in x:
 x1 = range(1,17)
 y1= []
 for i in x1:
-    model = classifier.ID3Classifier(i,2)
+    model = classifier.ID3Classifier(criterion="gini", max_depth=i, missing_value=False, sample_weights=[], numeric_conv=True, enable_categorical=True)
     model.fit(X_test, y_test)
     y_pred = model.predict(X_train)
     score = accuracy_score(y_train, y_pred)
@@ -234,7 +201,7 @@ print("------------------------------INFORMATION GAIN (TREAT UNKNOWN AS MAJORITY
 x = range(1,17)
 y= []
 for i in x:
-    model = classifier.ID3Classifier(i,0, True)
+    model = classifier.ID3Classifier(criterion="ig", max_depth=i, missing_value=True, sample_weights=[], numeric_conv=True, enable_categorical=True)
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
     score = accuracy_score(y_test, y_pred)
@@ -245,7 +212,7 @@ for i in x:
 x1 = range(1,17)
 y1= []
 for i in x1:
-    model = classifier.ID3Classifier(i,0, True)
+    model = classifier.ID3Classifier(criterion="ig", max_depth=i, missing_value=True, sample_weights=[], numeric_conv=True, enable_categorical=True)
     model.fit(X_test, y_test)
     y_pred = model.predict(X_train)
     score = accuracy_score(y_train, y_pred)
@@ -278,7 +245,7 @@ print("------------------------------MAJORITY ERROR (TREAT UNKNOWN AS MAJORITY)-
 x = range(1,17)
 y= []
 for i in x:
-    model = classifier.ID3Classifier(i,1, True)
+    model = classifier.ID3Classifier(criterion="me", max_depth=i, missing_value=True, sample_weights=[], numeric_conv=True, enable_categorical=True)
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
     score = accuracy_score(y_test, y_pred)
@@ -289,7 +256,7 @@ for i in x:
 x1 = range(1,17)
 y1= []
 for i in x1:
-    model = classifier.ID3Classifier(i,1, True)
+    model = classifier.ID3Classifier(criterion="me", max_depth=i, missing_value=True, sample_weights=[], numeric_conv=True, enable_categorical=True)
     model.fit(X_test, y_test)
     y_pred = model.predict(X_train)
     score = accuracy_score(y_train, y_pred)
@@ -322,7 +289,7 @@ print("------------------------------GINI INDEX (TREAT UNKNOWN AS MAJORITY)-----
 x = range(1,17)
 y= []
 for i in x:
-    model = classifier.ID3Classifier(i,2, True)
+    model = classifier.ID3Classifier(criterion="gini", max_depth=i, missing_value=True, sample_weights=[], numeric_conv=True, enable_categorical=True)
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
     score = accuracy_score(y_test, y_pred)
@@ -333,7 +300,7 @@ for i in x:
 x1 = range(1,17)
 y1= []
 for i in x1:
-    model = classifier.ID3Classifier(i,2, True)
+    model = classifier.ID3Classifier(criterion="gini", max_depth=i, missing_value=True, sample_weights=[], numeric_conv=True, enable_categorical=True)
     model.fit(X_test, y_test)
     y_pred = model.predict(X_train)
     score = accuracy_score(y_train, y_pred)

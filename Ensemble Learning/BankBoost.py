@@ -6,31 +6,14 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import sys
-sys.path.append("./Decision Tree")
-import ID3Classifier as classifier
+sys.path.append("./Ensemble Learning")
+#import ID3Classifier as classifier
+#from sklearn.tree import DecisionTreeClassifier
 import AdaBoost as boost
 import numbers
 
-def make_binary(attributes, df, yes, no):
-    df['age'] = np.where(df['age'] >= attributes['age'], yes, no)
+print("------------------------------BANK DATASET--------------------------------\n")
 
-    df['balance'] = np.where(df['balance'] >= attributes['balance'], yes, no)
-
-    df['day'] = np.where(df['day'] >= attributes['day'], yes, no)
-
-    df['duration'] = np.where(df['duration'] >= attributes['duration'], yes, no)
-
-    df['campaign'] = np.where(df['campaign'] >= attributes['campaign'], yes, no)
-
-    df['pdays'] = np.where(df['pdays'] >= attributes['pdays'], yes, no)
-
-    df['previous'] = np.where(df['previous'] >= attributes['previous'], yes, no)
-
-
-def accuracy_score(test, pred):
-    return np.mean(pred == test)
-
-#Prepare data for Decision Trees
 attributes = {
                     'age': None, 
                     'job': ["admin.", "unknown", "unemployed", "management", "housemaid", "entrepreneur", "student",
@@ -51,54 +34,46 @@ attributes = {
                     'poutcome': ['unknown', 'other', 'failure', 'success']
             }
 
-traindf = pd.read_csv("Ensemble Learning/bank/train.csv", header=None)
-traindf.columns = list(attributes.keys()) + ["label"]
-#print(traindf)
-testdf = pd.read_csv("Ensemble Learning/bank/test.csv", header=None)
-testdf.columns = list(attributes.keys()) + ["label"]
-#print(testdf)
 
-attributes['age'] = np.median(traindf['age'])
-attributes['balance'] = np.median(traindf['balance'])
-attributes['day'] = np.median(traindf['day'])
-attributes['duration'] = np.median(traindf['duration'])
-attributes['campaign'] = np.median(traindf['campaign'])
-attributes['pdays'] = np.median(traindf['pdays'])
-attributes['previous'] = np.median(traindf['previous'])
+traindf = pd.read_csv("Decision Tree/bank/train.csv")
+traindf.columns = list(attributes.keys()) + ["y"]
+testdf = pd.read_csv("Decision Tree/bank/test.csv")
+testdf.columns = list(attributes.keys()) + ["y"]
 
-#print(attributes)
+X_train = traindf.drop(columns="y")
+#X_train = pd.get_dummies(X_train)
+#print(X_train.head())
+y_train = traindf["y"]
+X_train = pd.get_dummies(X_train)
 
-make_binary(attributes, traindf, 1, -1)
-make_binary(attributes, testdf, 1, -1)
+X_test = testdf.drop(columns="y")
+#X_test = pd.get_dummies(X_test)
+#print(X_test.head())
+y_test = testdf["y"]
 
-#print(traindf)
-#print(testdf)
+# assign our individually defined functions as methods of our classifier
 
-# organize data into input and output
-X_train = traindf.drop(columns="label")
-y_train = traindf["label"]
-#print(X_train)
-#print(y_train)
+clf = boost.AdaBoost().fit(X_train, y_train, iters=2)
 
-X_test = testdf.drop(columns="label")
-y_test = testdf["label"]
-#print(X_test)
-#print(y_test)
+pred = clf.predict(X)
 
-# Fit a simple decision tree first
-tree = classifier.ID3Classifier(1, 0)
-tree.fit(X_train, y_train)
-er_tree = boost.generic_clf(y_train, X_train, y_test, X_test, tree)
+print(pred)
 
-# Fit Adaboost classifier using a decision tree as base estimator
-# Test with different number of iterations
-er_train, er_test = [er_tree[0]], [er_tree[1]]
-x_range = range(10, 410, 10)
-for i in x_range:    
-    er_i = boost.adaboost_clf(y_train, X_train, y_test, X_test, i, tree)
-    er_train.append(er_i[0])
-    er_test.append(er_i[1])
-    
-# Compare error rate vs number of iterations
-plot_error_rate(er_train, er_test)
+train_err = (clf.predict(X) != y).mean()
+print(f'Train error: {train_err:.4%}')
+
+errors = list(clf.errors)
+ada_error = list(clf.ada_errors)
+
+y = []
+for i in range(1,3):
+  y.append(i)
+
+# plotting the error curve (expected - exponentially decreasing)
+plt.plot(y,errors)
+plt.plot(y,ada_error)
+plt.ylabel('error')
+plt.xlabel('iteration')
+plt.legend(['weak hypothesis error', 'final hypothesis error'], loc='upper right')
+plt.show()
 
