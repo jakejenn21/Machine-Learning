@@ -31,7 +31,7 @@ y_test = testdf["output"]
 w = np.zeros(X_train.size)
 train_size = X_train.size
 
-model = sgd.sgd(X_train, y_train, learn_rate=0.001, n_iter=10000, tolerance=1e-06, batch_size=1)
+model = sgd.sgd(X_train, y_train, learn_rate=0.0001, n_iter=1000, tolerance=1e-06, batch_size=1)
 
 #Report
 

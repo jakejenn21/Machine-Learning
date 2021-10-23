@@ -12,7 +12,7 @@ def cost(X, Y, w):
         sum += (Y[i]-w.T.dot(X[i]))**2
     return 1/2 * sum
 
-def sgd(X, y, learn_rate=0.001, n_iter=100000, tolerance=1e-06, batch_size=1):
+def sgd(X, y, learn_rate=0.001, n_iter=1000, tolerance=1e-06, batch_size=1):
     # Converting x and y to NumPy arrays
     X, y = np.array(X), np.array(y)
     num_rows, num_cols = X.shape

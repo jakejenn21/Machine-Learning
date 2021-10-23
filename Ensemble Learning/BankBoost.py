@@ -4,15 +4,14 @@ import csv
 import pprint
 import numpy as np
 import pandas as pd
+import math
 import matplotlib.pyplot as plt
 import sys
 sys.path.append("./Ensemble Learning")
-#import ID3Classifier as classifier
-#from sklearn.tree import DecisionTreeClassifier
 import AdaBoost as boost
 import numbers
 
-print("------------------------------BANK DATASET--------------------------------\n")
+#print("------------------------------BANK DATASET--------------------------------\n")
 
 attributes = {
                     'age': None, 
@@ -41,39 +40,61 @@ testdf = pd.read_csv("Decision Tree/bank/test.csv")
 testdf.columns = list(attributes.keys()) + ["y"]
 
 X_train = traindf.drop(columns="y")
-#X_train = pd.get_dummies(X_train)
-#print(X_train.head())
 y_train = traindf["y"]
-X_train = pd.get_dummies(X_train)
+
+y_train.columns=["y"]
 
 X_test = testdf.drop(columns="y")
-#X_test = pd.get_dummies(X_test)
-#print(X_test.head())
 y_test = testdf["y"]
 
-# assign our individually defined functions as methods of our classifier
+iters = 500
 
-clf = boost.AdaBoost().fit(X_train, y_train, iters=2)
+training_errors=[]
+test_errors=[]
+x = []
 
-pred = clf.predict(X)
+for i in range(1,iters+1):
+  #print(i)
+  clf = boost.AdaBoost().fit(X_train, y_train, X_test, y_test, i)
 
-print(pred)
+  pred_train = clf.predict(X_train)
+  
+  y_train_temp = np.array(y_train)
+  y_train_temp = np.where(y_train_temp=='yes', 1, -1)
 
-train_err = (clf.predict(X) != y).mean()
-print(f'Train error: {train_err:.4%}')
+  train_err = (pred_train != y_train_temp).mean()
+  #print(f'Train error: {train_err:.1%}')
 
-errors = list(clf.errors)
-ada_error = list(clf.ada_errors)
+  pred_test = clf.predict(X_train)
+  
+  y_test_temp = np.array(y_test)
+  y_test_temp = np.where(y_test_temp=='yes', 1, -1)
 
-y = []
-for i in range(1,3):
-  y.append(i)
+  test_err = (pred_test != y_test_temp).mean()
+  #print(f'Test error: {test_err:.1%}')
+
+  training_errors.append(train_err)
+  test_errors.append(test_err)
+  x.append(i)
 
 # plotting the error curve (expected - exponentially decreasing)
-plt.plot(y,errors)
-plt.plot(y,ada_error)
+
+#The first figgure shows how the training and test errors vary along with T.
+plt.figure(1)
+plt.plot(x,training_errors)
+plt.plot(x,test_errors)
+plt.title("Train vs Test Error")
 plt.ylabel('error')
 plt.xlabel('iteration')
-plt.legend(['weak hypothesis error', 'final hypothesis error'], loc='upper right')
+plt.legend(['Training Errors', 'Test Errors'], loc='upper right')
+
+#The second figure shows the training and test errors of all the decision stumps learned in each iteration.
+plt.figure(2)
+plt.plot(x,clf.stump_errors_train)
+plt.plot(x,clf.stump_errors_test)
+plt.title("Train vs Test Error of Decision Stumps Learned in each iteration")
+plt.ylabel('error')
+plt.xlabel('iteration')
+plt.legend(['Train Error of Decision Stump', 'Test Error of Decision Stump'], loc='upper right')
 plt.show()
 

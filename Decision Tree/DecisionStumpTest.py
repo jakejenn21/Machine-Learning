@@ -86,19 +86,19 @@ y_train = traindf["y"]
 X_test = testdf.drop(columns="y")
 y_test = testdf["y"]
 
-model = classifier.ID3Classifier(criterion="ig", max_depth=16, numeric_conv=True)
+model = classifier.ID3Classifier(criterion="ig", max_depth=1, missing_value=False, sample_weights=[], numeric_conv=True, enable_categorical=True)
 model.fit(X_train, y_train)
 y_pred = model.predict(X_test)
 score = accuracy_score(y_test, y_pred)
 print("ig: ", score)
 
-model = classifier.ID3Classifier(criterion="me", max_depth=1, numeric_conv=True)
+model = classifier.ID3Classifier(criterion="me", max_depth=1, missing_value=False, sample_weights=[], numeric_conv=True, enable_categorical=True)
 model.fit(X_train, y_train)
 y_pred = model.predict(X_test)
 score = accuracy_score(y_test, y_pred)
 print("me: ", score)
 
-model = classifier.ID3Classifier(criterion="gini", max_depth=1, numeric_conv=True)
+model = classifier.ID3Classifier(criterion="gini", max_depth=1, missing_value=False, sample_weights=[], numeric_conv=True, enable_categorical=True)
 model.fit(X_train, y_train)
 y_pred = model.predict(X_test)
 score = accuracy_score(y_test, y_pred)

@@ -5,21 +5,24 @@ from pandas.api.types import is_numeric_dtype
 from pandas.api.types import is_string_dtype
 from sklearn.preprocessing import LabelEncoder
 from numpy import log2 as log
+import random
 
 class ID3Classifier:
 
-  def __init__(self, criterion="gini", max_depth=10, missing_value=False, sample_weights=[], numeric_conv=False, enable_categorical=True):
+  def __init__(self, criterion="gini", max_depth=10, missing_value=False, sample_weights=[], numeric_conv=False, enable_categorical=True, random_features=0):
     self.criterion = criterion
     self.max_depth = max_depth
     self.missing_value = missing_value
     self.sample_weights = sample_weights
     self.numeric_conv = numeric_conv
     self.enable_categorical = enable_categorical
+    self.random_features = random_features
     self.tree = None
 
 
   def fit(self, input, output, sample_weights=[]):
     data = input.copy()
+    ydata = output.copy()
 
     # Let us consider "unknown" as attribute value missing. 
     # Here we simply complete it with the majority of other values of the same attribute in the training set.
@@ -48,9 +51,15 @@ class ID3Classifier:
         if not(is_numeric_dtype(data[col])): 
           data[col].astype('category')
           data[col] = lblenc.fit_transform(data[col])
-    
-    data[output.name] = output
-    self.tree = self.decision_tree(data, data, input.columns, output.name)
+
+    data["y"] = output
+    # if self.Boost == True:
+    #   #convert output to +1- yes, -1- no
+    #   data["y"] = np.where(data["y"]=="yes", 1, -1)
+      
+    self.tree = self.decision_tree(data, data, input.columns, "y")
+
+    return self.tree
 
   def predict(self, input):
     # convert input data into a dictionary of samples
@@ -66,6 +75,7 @@ class ID3Classifier:
   def make_prediction(self, sample, tree, default="yes"): 
     # map sample data to tree
     for attribute in list(sample.keys()):
+      
       # check if feature exists in tree
       if attribute in list(tree.keys()):
         try:
@@ -216,9 +226,17 @@ class ID3Classifier:
     # determine information gain values for each feature
     # choose feature which best splits the data, ie. highest value
     if self.criterion == "ig":
-      ig_values = [self.information_gain(data, feature, target_attribute_name) for feature in feature_attribute_names]
-      best_feature_index = np.argmax(ig_values)
-      best_feature = feature_attribute_names[best_feature_index]
+      if self.random_features != 0:
+        feature_subset = []
+        for i in range(random_features):
+          feature_subset.append(random.choice(feature_attribute_names))
+          ig_values = [self.information_gain(data, feature, target_attribute_name) for feature in feature_subset]
+          best_feature_index = np.argmax(ig_values)
+          best_feature = feature_attribute_names[best_feature_index]
+      else:
+        ig_values = [self.information_gain(data, feature, target_attribute_name) for feature in feature_attribute_names]
+        best_feature_index = np.argmax(ig_values)
+        best_feature = feature_attribute_names[best_feature_index]
 
     elif self.criterion == "me":
       me_values = [self.majority_gain(data, feature, target_attribute_name) for feature in feature_attribute_names]
