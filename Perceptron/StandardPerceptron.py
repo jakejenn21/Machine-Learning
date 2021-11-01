@@ -28,6 +28,8 @@ class StandardPerceptron:
 
             y = train_shuffle.iloc[:,-1]
             y = np.array(y)
+            y = np.where(y==1, 1, -1)
+
 
             # print("X:",X)
             # print("y:",y)
@@ -45,7 +47,7 @@ class StandardPerceptron:
                 else:
                     continue
 
-                self.weights += update
+                self.weights = update
 
     def predict(self, X):
         linear_output = X@self.weights

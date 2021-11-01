@@ -1,7 +1,18 @@
 This is a machine learning library developed by Jacob Jenn for
 CS5350/6350 in University of Utah
 
+For Grader:
 
+Permissions: 
+chmod u+x job.sh
+
+Edit the bash script:
+
+Uncomment the block of interest for assignment
+#python3 Perceptron/PerceptronTest.py -> python3 Perceptron/PerceptronTest.py
+
+Run the bash script:
+./run.sh
 
 
 --------------------------Decision Tree-----------------------
@@ -119,6 +130,22 @@ Use:
 
 
 ConcreteTests.py (EXECUTE THIS FILE FOR STOCHASTIC/BATCH GRADIENT DESCENT ANALYSIS ON CONCRETE DATASET)
+
+
+
+-------------------------- Perceptron -----------------------
+
+StandardPerceptron.py - Standard Perceptron implementation
+
+VotedPerceptron.py - Voted Perceptron implementation
+
+AveragedPerceptron.py - Averaged Perceptron implementations
+
+
+PerceptronTest.py - TEST UNIT FOR EACH OF THE PERCEPTRON IMPLEMENTATIONS
+
+
+
 
 
 
