@@ -17,6 +17,8 @@
 
 #python3 "Linear Regression/ConcreteTests.py"
 
-python3 Perceptron/PerceptronTest.py
+#python3 Perceptron/PerceptronTest.py
+
+python3 SVM/SVMTests.py
 
 
