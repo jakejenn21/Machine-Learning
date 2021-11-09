@@ -145,6 +145,14 @@ AveragedPerceptron.py - Averaged Perceptron implementations
 PerceptronTest.py - TEST UNIT FOR EACH OF THE PERCEPTRON IMPLEMENTATIONS
 
 
+-------------------------- SVM -----------------------
+
+PrimalStochasticSVM.py - SVM in the primal domain with stochastic sub-gradient descent implementation
+
+DualSVM.py - SVM in the dual domain - utilizes optimization libraries
+
+SVMTests.py - TEST UNIT FOR EACH OF THE SVM IMPLEMENTATIONS
+
 
 
 
