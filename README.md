@@ -4,7 +4,7 @@ CS5350/6350 in University of Utah
 For Grader:
 
 Permissions: 
-chmod u+x job.sh
+chmod u+x run.sh
 
 Edit the bash script:
 
