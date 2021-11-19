@@ -151,6 +151,8 @@ PrimalStochasticSVM.py - SVM in the primal domain with stochastic sub-gradient d
 
 DualSVM.py - SVM in the dual domain - utilizes optimization libraries
 
+Problem5.py - Helper calculation for Part 1 Problem 5 in calculating subgradients by hand
+
 SVMTests.py - TEST UNIT FOR EACH OF THE SVM IMPLEMENTATIONS
 
 
