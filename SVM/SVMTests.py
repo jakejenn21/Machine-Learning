@@ -165,7 +165,7 @@ for gamma in gammas:
         print("\n")
 
         print("TEST:\n")
-        a,w,b = model.fit(X_test, y_test)
+        support_idx,a,w,b = model.fit(X_test, y_test)
         print("Final w:", w)
         print("Final b:", b)
         print("\n")
