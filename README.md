@@ -155,6 +155,12 @@ Problem5.py - Helper calculation for Part 1 Problem 5 in calculating subgradient
 
 SVMTests.py - TEST UNIT FOR EACH OF THE SVM IMPLEMENTATIONS
 
+-------------------------- Neural Networks -----------------------
+
+
+NNsgd.py - Implementation of a artificial neural network with stochastic gradient descent (TEST SUITE CONTAINED)
+
+PyTorch.py - Implementation of a artificial neural network with PyTorch (TEST SUITE CONTAINED)
 
 
 
