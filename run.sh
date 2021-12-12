@@ -21,8 +21,8 @@
 
 #python3 SVM/SVMTests.py
 
-python3 "Neural Networks/NeuralNetTests.py"
+python3 "Neural Networks/NNsgd.py"
 
-python3 "Logistic Regression/LogisticRegressionTests.py"
+python3 "Neural Networks/Pytorch.py"
 
 
